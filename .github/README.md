@@ -64,20 +64,21 @@ install -Dm644 "$bundle/share/icons/hicolor/256x256/apps/$id.png" "$HOME/.local/
 
 ## 已验证
 
-- Arch Linux、原生 Steam、Proton Experimental、国服：在安装好的窗口中点「从 Steam 启动」，游戏正常启动，新生成的 CesiumLoader 3.8.3 日志为 `23 ok · 0 failed · 0 not loaded`。
+- Arch Linux、原生 Steam、Proton Experimental、国服：用 2026-11-19 的构建（当时 WebUI 仍有 Linux 补丁）在安装好的窗口中点「从 Steam 启动」，游戏正常启动，新生成的 CesiumLoader 3.8.3 日志为 `23 ok · 0 failed · 0 not loaded`。
+- 当前构建（上游 WebUI 不做修改）在同一环境中正确显示了游戏目录、加载器版本、模组数和上述日志，但没有再实际启动游戏。从点击「从 Steam 启动」到调用 `xdg-open steam://rungameid/2622000` 的过程由 CI 的界面检查覆盖。
 - 安装、升级和卸载只在临时游戏目录和独立的 Proton 前缀中测试过。
 
 ## 与上游同步
 
 本仓库保留上游的完整历史，只跟随上游发布的版本（tag），不跟随上游 `master`。
 
-- [`Upstream sync`](workflows/upstream-sync.yml) 每天检查上游最新发布：把它合并到 `sync/upstream-<tag>` 分支并运行 Linux CI，通过就开 PR，合并冲突或 CI 失败就开 issue。不会自动合并到 `main`。
+- [`Upstream sync`](workflows/upstream-sync.yml) 每天检查上游最新发布：把它合并到 `sync/upstream-<tag>` 分支并运行 Linux CI，通过就开 PR，合并冲突或 CI 失败就开 issue。不会自动合并到 `main`。上游改动了 `.github/workflows/` 的版本，Actions 的令牌无权推送，工作流会直接开 issue，需要在本地合并后推送。
 - 手动同步：`git fetch upstream --tags && git merge <tag>`。
 - Linux 版自己的文件：`linux/`、`src/AstralParty.Toys.LinuxHost/`、`tests/test-linux-loader.sh`、`.github/README.md`、`.github/workflows/linux-ci.yml`、`.github/workflows/upstream-sync.yml` 和 `CHANGELOG.linux.md`。上游的 WebUI 不做修改，构建时由 `linux/build.rs` 注入 Linux 通信层和概览页。
 - 唯一仍在修改的上游文件是 `src/AstralParty.Toys/` 下的 20 个 C# 文件：把不依赖 WPF 的只读逻辑拆成独立文件，供 Linux 版编译。这些修改只在本仓库维护，不提交上游；上游改到这些文件时，同步可能产生冲突，需要手动解决。
-- 上游的 `release.yml` 在本仓库已停用，避免打 tag 时发布 Windows 版。
+- 上游的 `release.yml` 在本仓库的 Actions 设置中已停用，避免打 tag 时发布 Windows 版。文件本身保留，以便和上游无冲突合并。
 
-[`Linux CI`](workflows/linux-ci.yml) 和本地检查使用同一个脚本：`bash linux/ci.sh`。它运行 Rust 测试，打包，再用打包产物测试加载器的完整生命周期，并在临时 Steam 库上打开窗口检查概览，不会读取真实的游戏或 Steam。
+[`Linux CI`](workflows/linux-ci.yml) 和本地检查使用同一个脚本：`bash linux/ci.sh`。它交叉编译 Windows 项目（检查本仓库修改过的 C# 文件），运行 Rust 测试，打包，再用打包产物测试加载器的完整生命周期，并在临时 Steam 库上打开窗口检查概览和启动按钮，不会读取真实的游戏或 Steam，也不会真的启动游戏。
 
 ## 许可
 

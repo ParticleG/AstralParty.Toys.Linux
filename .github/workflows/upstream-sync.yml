@@ -25,6 +25,7 @@ jobs:
     outputs:
       tag: ${{ steps.release.outputs.tag }}
       branch: ${{ steps.release.outputs.branch }}
+      workflows: ${{ steps.release.outputs.workflows }}
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -46,10 +47,14 @@ jobs:
           else
             echo "tag=$tag" >> "$GITHUB_OUTPUT"
             echo "branch=$branch" >> "$GITHUB_OUTPUT"
+            # GITHUB_TOKEN may not push commits that change workflow files; such releases are merged locally.
+            if ! git diff --quiet HEAD...FETCH_HEAD -- .github/workflows; then
+              echo "workflows=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Merge and push
-        if: steps.release.outputs.tag
+        if: steps.release.outputs.tag && !steps.release.outputs.workflows
         env:
           TAG: ${{ steps.release.outputs.tag }}
           BRANCH: ${{ steps.release.outputs.branch }}
@@ -63,7 +68,7 @@ jobs:
   test:
     name: Linux CI
     needs: merge
-    if: needs.merge.outputs.tag
+    if: needs.merge.outputs.tag && !needs.merge.outputs.workflows
     uses: ./.github/workflows/linux-ci.yml
     with:
       ref: ${{ needs.merge.outputs.branch }}
@@ -82,16 +87,19 @@ jobs:
           BRANCH: ${{ needs.merge.outputs.branch }}
           MERGE: ${{ needs.merge.result }}
           TEST: ${{ needs.test.result }}
+          WORKFLOWS: ${{ needs.merge.outputs.workflows }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if [ "$MERGE" = success ] && [ "$TEST" = success ]; then
+          if [ "$WORKFLOWS" != true ] && [ "$MERGE" = success ] && [ "$TEST" = success ]; then
             gh pr create --base main --head "$BRANCH" --title "Merge upstream $TAG" \
               --body "合并上游 [$TAG](https://github.com/$UPSTREAM/releases/tag/$TAG)。Linux CI 已在此分支通过：$RUN"
             exit 0
           fi
           title="同步上游 $TAG 失败"
-          if [ "$MERGE" != success ]; then
-            reason="合并有冲突。请在本地合并 \`$TAG\` 并解决冲突。"
+          if [ "$WORKFLOWS" = true ]; then
+            reason="上游修改了 \`.github/workflows/\`，Actions 的令牌无权推送这类提交。请在本地合并 \`$TAG\` 并推送。"
+          elif [ "$MERGE" != success ]; then
+            reason="合并或推送失败，通常是有冲突。请在本地合并 \`$TAG\` 并解决冲突。"
           else
             reason="已合并到 \`$BRANCH\`，但 Linux CI 未通过。修复后从该分支提交 PR。"
           fi

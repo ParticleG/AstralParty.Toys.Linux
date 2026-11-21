@@ -34,9 +34,10 @@ build() {
 
 package() {
   local app="$pkgdir/usr/lib/$pkgname"
-  install -d "$app" "$pkgdir/usr/bin" "$pkgdir/usr/share/licenses/$pkgname"
+  install -d "$app" "$pkgdir/usr/bin"
   bsdtar -xf "$_srcname/linux/target/AstralParty.Toys-linux-x64.tar.gz" -C "$app" --strip-components 1
   mv "$app/share" "$pkgdir/usr/"
+  install -d "$pkgdir/usr/share/licenses/$pkgname"
   mv "$app/LICENSE" "$app/CesiumLoader-LICENSE.txt" "$app/CesiumLoader-NOTICE.txt" "$pkgdir/usr/share/licenses/$pkgname/"
   ln -s "/usr/lib/$pkgname/astralparty-toys-linux" "$pkgdir/usr/bin/astralparty-toys-linux"
 }

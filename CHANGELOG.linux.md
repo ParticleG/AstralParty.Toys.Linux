@@ -9,3 +9,4 @@
 - 安装、修复、更新和卸载 CesiumLoader 3.8.3，只为所选游戏设置针对可执行文件的 Proton DLL 覆盖。
 - 不再修改上游 WebUI：构建时注入 Linux 通信层和概览页。
 - 应用标识改为 `io.github.particleg.astralparty-toys-linux`。
+- AUR 包 `astralparty-toys-linux`：推送 `linux-v*` tag 后由 GitHub Actions 在 Arch Linux 中构建、测试并发布。

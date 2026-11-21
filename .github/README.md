@@ -18,6 +18,14 @@
 
 ## 构建与安装
 
+Arch Linux 用户可以从 AUR 安装 [`astralparty-toys-linux`](https://aur.archlinux.org/packages/astralparty-toys-linux)（首个版本发布后可用），它在本机从源码构建：
+
+```sh
+yay -S astralparty-toys-linux
+```
+
+其他发行版按下面的步骤自行构建。
+
 需要 Rust 1.90 或更高版本、.NET 8 SDK、C 工具链、`pkg-config`、GTK 3 和 WebKitGTK 4.1 开发文件，以及 `curl`、`jq`、`unzip`、`tar`。管理加载器还需要原生 `protontricks`；只查看概览和从 Steam 启动则不需要。
 
 - Arch Linux：`base-devel rust dotnet-sdk-8.0 gtk3 webkit2gtk-4.1 jq unzip xdg-utils protontricks`（已有 rustup 工具链时可不装 `rust`）。
@@ -74,11 +82,28 @@ install -Dm644 "$bundle/share/icons/hicolor/256x256/apps/$id.png" "$HOME/.local/
 
 - [`Upstream sync`](workflows/upstream-sync.yml) 每天检查上游最新发布：把它合并到 `sync/upstream-<tag>` 分支并运行 Linux CI，通过就开 PR，合并冲突或 CI 失败就开 issue。不会自动合并到 `main`。上游改动了 `.github/workflows/` 的版本，Actions 的令牌无权推送，工作流会直接开 issue，需要在本地合并后推送。
 - 手动同步：`git fetch upstream --tags && git merge <tag>`。
-- Linux 版自己的文件：`linux/`、`src/AstralParty.Toys.LinuxHost/`、`tests/test-linux-loader.sh`、`.github/README.md`、`.github/workflows/linux-ci.yml`、`.github/workflows/upstream-sync.yml` 和 `CHANGELOG.linux.md`。上游的 WebUI 不做修改，构建时由 `linux/build.rs` 注入 Linux 通信层和概览页。
+- Linux 版自己的文件：`linux/`、`src/AstralParty.Toys.LinuxHost/`、`tests/test-linux-loader.sh`、`.github/README.md`、`.github/workflows/linux-ci.yml`、`.github/workflows/upstream-sync.yml`、`.github/workflows/aur.yml` 和 `CHANGELOG.linux.md`。上游的 WebUI 不做修改，构建时由 `linux/build.rs` 注入 Linux 通信层和概览页。
 - 唯一仍在修改的上游文件是 `src/AstralParty.Toys/` 下的 20 个 C# 文件：把不依赖 WPF 的只读逻辑拆成独立文件，供 Linux 版编译。这些修改只在本仓库维护，不提交上游；上游改到这些文件时，同步可能产生冲突，需要手动解决。
 - 上游的 `release.yml` 在本仓库的 Actions 设置中已停用，避免打 tag 时发布 Windows 版。文件本身保留，以便和上游无冲突合并。
 
 [`Linux CI`](workflows/linux-ci.yml) 和本地检查使用同一个脚本：`bash linux/ci.sh`。它交叉编译 Windows 项目（检查本仓库修改过的 C# 文件），运行 Rust 测试，打包，再用打包产物测试加载器的完整生命周期，并在临时 Steam 库上打开窗口检查概览和启动按钮，不会读取真实的游戏或 Steam，也不会真的启动游戏。
+
+## 发布版本
+
+版本号以 `linux/Cargo.toml` 为准，tag 格式为 `linux-v<版本>`，和上游的 `v*` tag 区分开。
+
+1. 修改 `linux/Cargo.toml` 的 `version`，运行 `cargo update --workspace --manifest-path linux/Cargo.toml` 更新 `Cargo.lock`，并在 `CHANGELOG.linux.md` 中写好这一版的说明，然后提交并推送。
+2. 推送 tag：`git tag linux-v<版本> && git push origin linux-v<版本>`。不要用 `git push --tags`，本地仓库里还有上游的 tag。
+3. [`AUR`](workflows/aur.yml) 工作流会在 Arch Linux 容器里用 [`linux/aur/PKGBUILD`](../linux/aur/PKGBUILD) 构建，安装后测试加载器生命周期和窗口，全部通过后把 `PKGBUILD` 和 `.SRCINFO` 推送到 AUR。
+
+只改打包、不改版本时，手动运行 AUR 工作流，填同一个 tag 并调高 `pkgrel`。不填 tag 手动运行时，只构建和测试当前提交，不发布。本地可以在一次性容器中运行同一个脚本：`docker run --rm -v "$PWD":/src:ro -w /src archlinux:base-devel bash linux/aur/build.sh`。
+
+首次发布前需要一次性设置：
+
+1. 注册 [AUR](https://aur.archlinux.org/) 账号。
+2. 生成一对专用的无口令 SSH 密钥：`ssh-keygen -t ed25519 -N '' -C 'AstralParty.Toys.Linux AUR' -f aur_deploy`。
+3. 把 `aur_deploy.pub` 的内容填到 AUR 账号的 *My Account → SSH Public Key*。
+4. 把私钥存为本仓库的 Actions secret，然后删除本地私钥：`gh secret set AUR_SSH_PRIVATE_KEY -R ParticleG/AstralParty.Toys.Linux < aur_deploy && rm aur_deploy`。
 
 ## 许可
 

@@ -74,7 +74,7 @@ install -Dm644 "$bundle/share/icons/hicolor/256x256/apps/$id.png" "$HOME/.local/
 - [`Upstream sync`](workflows/upstream-sync.yml) 每天检查上游最新发布：把它合并到 `sync/upstream-<tag>` 分支并运行 Linux CI，通过就开 PR，合并冲突或 CI 失败就开 issue。不会自动合并到 `main`。
 - 手动同步：`git fetch upstream --tags && git merge <tag>`。
 - Linux 版自己的文件：`linux/`、`src/AstralParty.Toys.LinuxHost/`、`tests/test-linux-loader.sh`、`.github/README.md`、`.github/workflows/linux-ci.yml`、`.github/workflows/upstream-sync.yml` 和 `CHANGELOG.linux.md`。上游的 WebUI 不做修改，构建时由 `linux/build.rs` 注入 Linux 通信层和概览页。
-- 目前仍修改了上游 `src/AstralParty.Toys/` 下的部分 C# 文件，把不依赖 WPF 的只读逻辑拆成独立文件供 Linux 版编译。这部分已向上游提交；上游接受后，这些修改会在合并时自然消失。
+- 唯一仍在修改的上游文件是 `src/AstralParty.Toys/` 下的 20 个 C# 文件：把不依赖 WPF 的只读逻辑拆成独立文件，供 Linux 版编译。这些修改只在本仓库维护，不提交上游；上游改到这些文件时，同步可能产生冲突，需要手动解决。
 - 上游的 `release.yml` 在本仓库已停用，避免打 tag 时发布 Windows 版。
 
 [`Linux CI`](workflows/linux-ci.yml) 和本地检查使用同一个脚本：`bash linux/ci.sh`。它运行 Rust 测试，打包，再用打包产物测试加载器的完整生命周期，并在临时 Steam 库上打开窗口检查概览，不会读取真实的游戏或 Steam。

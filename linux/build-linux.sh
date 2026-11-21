@@ -26,7 +26,7 @@ dotnet publish ../src/AstralParty.Toys.LinuxHost -c Release -r linux-x64 --self-
 cargo build --release --locked --target-dir target
 install -m 755 target/release/astralparty-toys-linux "$bundle/"
 install -m 644 ../LICENSE "$bundle/LICENSE"
-desktop_id=com.github.higashitaniyume.astralparty-toys-linux
+desktop_id=io.github.particleg.astralparty-toys-linux
 install -Dm644 "$desktop_id.desktop" "$bundle/share/applications/$desktop_id.desktop"
 install -Dm644 ../src/AstralParty.Toys/WebUI/images/astralparty-game-icon.png \
     "$bundle/share/icons/hicolor/256x256/apps/$desktop_id.png"

@@ -43,9 +43,15 @@ cd "$work"
 sudo -u builder updpkgsums
 sudo -u builder makepkg --printsrcinfo > .SRCINFO
 sudo -u builder makepkg --syncdeps --noconfirm
-namcap PKGBUILD "$pkgname-$version-$pkgrel-x86_64.pkg.tar.zst" || true
+package=$pkgname-$version-$pkgrel-x86_64.pkg.tar.zst
+# Warnings about the prebuilt .NET runtime are expected; errors such as wrong file owners are not.
+namcap PKGBUILD "$package" | tee namcap.log
+if grep -q ' E: ' namcap.log; then
+  echo 'namcap reported errors.' >&2
+  exit 1
+fi
 
-pacman -U --noconfirm "$pkgname-$version-$pkgrel-x86_64.pkg.tar.zst" > /dev/null
+pacman -U --noconfirm "$package" > /dev/null
 sudo -u builder bash "$repo/tests/test-linux-loader.sh" "/usr/lib/$pkgname/managed/AstralParty.Toys.LinuxHost"
 # Containers cannot create the namespaces of WebKit's sandbox; the test only loads the local page.
 sudo -u builder env WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1 \

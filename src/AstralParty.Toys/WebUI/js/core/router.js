@@ -55,7 +55,6 @@ function finishPageTransition(target, pageName) {
 }
 
 function showPage(pageName, options = {}) {
-  if (host.isLinux && pageName !== 'home') return;
   const target = $(`${pageName}View`);
   if (!target) return;
 

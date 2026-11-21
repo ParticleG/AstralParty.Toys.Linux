@@ -2,7 +2,7 @@
 // 只改变这个工具的外观，不影响游戏。图片由宿主存在设置文件夹的 backgrounds（HybridWindow.Background.cs）；
 // 选了哪张、滑块的值只影响这台电脑的外观，存在 localStorage，丢了也只是回到默认外观。
 (function () {
-  if (host.isLinux) return;
+  const HOST = 'https://backgrounds.aspatoys.hiynet.localhost/';
   const KEY = 'v2Background';
   const DEFAULTS = { blur: 50, ui: 80 };
   const BLUR_PX_PER_UNIT = 0.24;   // 滑块 0～100 → 0～24px，默认 50 是 12px
@@ -12,7 +12,7 @@
   const S = { file: null, blur: DEFAULTS.blur, ui: DEFAULTS.ui, items: null, queue: [], extracting: false };
   const U = () => window.V2UI;
   const I = () => window.V2UI.ICON;
-  const urlOf = file => assetUrl('backgrounds', file);
+  const urlOf = file => HOST + encodeURIComponent(file);
 
   function load() {
     try {
@@ -195,7 +195,7 @@
         break;
     }
   }
-  host.onMessage(onHostMessage);
+  window.chrome?.webview?.addEventListener('message', event => onHostMessage(event.data));
 
   window.V2Bg = { html, onHostMessage };
 

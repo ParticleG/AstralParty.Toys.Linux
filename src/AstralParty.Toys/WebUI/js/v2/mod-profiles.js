@@ -6,7 +6,6 @@
 // 套用前先向宿主请求差异预览（modProfilePlan），确认后再发 modProfileApply。
 (function () {
   'use strict';
-  if (host.isLinux) return;
 
   const S = {
     data: null,        // modProfiles payload
@@ -437,7 +436,8 @@
     }
   });
 
-  host.onMessage(msg => {
+  window.chrome?.webview?.addEventListener('message', ev => {
+    const msg = ev.data;
     if (!msg?.type) return;
     switch (msg.type) {
       case 'modProfiles':

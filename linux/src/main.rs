@@ -45,7 +45,8 @@ fn write_lock(data: &Path) -> Result<File, String> {
 fn dispatch(app: &tauri::AppHandle, message: Value) -> Result<Events, String> {
     let kind = message["type"].as_str().ok_or("Missing message type")?;
     if !matches!(kind, "ready" | "gameProfileSetActive" | "launchGame" | "linuxInstallLoader" | "linuxUpdateLoader" | "linuxUninstallLoader") {
-        return Err(format!("Unsupported native action: {kind}"));
+        // The shared WebUI also requests data for its Windows-only pages, which Linux hides.
+        return Ok(Events::new());
     }
     let state = app.state::<Mutex<Option<PathBuf>>>();
     let mut selected = state.lock().map_err(|_| "Native session unavailable")?;

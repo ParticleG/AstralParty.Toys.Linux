@@ -1,9 +1,8 @@
 // core/dispatcher.js - Host message dispatcher
 // Host Message Handler
-const nativeSharedEvents = new Set(['appVersion', 'gameProfiles', 'toast', 'error']);
-host.onMessage(msg => {
+host?.addEventListener('message', event => {
+  const msg = event.data;
   if (!msg?.type) return;
-  if (host.isLinux && !nativeSharedEvents.has(msg.type)) return;
   if (msg.type.startsWith('myAccount')) { window.MyAccountModule?.receive(msg); return; }
 
   switch (msg.type) {
@@ -255,7 +254,7 @@ host.onMessage(msg => {
 
     case 'gameProfiles':
       AppState.gameProfiles = msg.payload;
-      if (!host.isLinux && window.GameLibModule) window.GameLibModule.renderProfiles(msg.payload);
+      if (window.GameLibModule) window.GameLibModule.renderProfiles(msg.payload);
       break;
 
     case 'accountProfiles':
@@ -364,7 +363,7 @@ host.onMessage(msg => {
       const loadEl = $('loadingOverlay');
       if (loadEl) loadEl.classList.add('hidden');
       // 宿主抛异常时不会有别的收尾消息，这里兜住按钮的忙碌态，免得一直转圈
-      if (!host.isLinux) window.ModsModule?.clearBusy?.();
+      window.ModsModule?.clearBusy?.();
       toast(`错误：${msg.message}`);
       break;
   }

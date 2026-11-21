@@ -4,7 +4,6 @@
 // 数据仍由原版模块保存（SkinsModule / AudioSkinsModule / ResourceModsModule），这里包一层方法、跑完后重画。
 // 裁切窗口、按编号导入动态卡面、动态卡面转换进度沿用原版。
 (function () {
-  if (host.isLinux) return;
   const K = {
     cardScheme: null, cardCat: 'all', cardQ: '',
     audioScheme: null, aCat: 'all', aStatus: 'all', aChar: 'all', aQ: '', aLimit: 200, extract: null,
@@ -383,7 +382,8 @@
       onOk: () => post({ type: 'homeBgPickImage' }),
     });
   }
-  host.onMessage(m => {
+  window.chrome?.webview?.addEventListener('message', e => {
+    const m = e.data;
     if (m?.type === 'homeBgStatus') { K.hb = m.payload || null; if (tab() === 'homebg') render(); }
     else if (m?.type === 'homeBgBusy') { K.hbBusy = !!m.payload?.busy; K.hbBusyMsg = m.payload?.message || ''; if (tab() === 'homebg') render(); }
   });

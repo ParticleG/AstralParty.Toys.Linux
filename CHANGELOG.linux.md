@@ -2,7 +2,7 @@
 
 上游的更新日志见 [CHANGELOG.md](CHANGELOG.md)。
 
-## 未发布
+## 0.1.0（2026-11-23）
 
 - 从上游 [PR #10](https://github.com/higashitaniyume/AstralParty.Toys/pull/10) 独立为本仓库，当前基于上游 v2.4.4。
 - 原生概览：游戏目录、运行状态、加载器版本、磁盘模组数和最新日志；通过 Steam 启动游戏。

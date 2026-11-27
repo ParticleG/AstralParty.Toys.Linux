@@ -67,7 +67,7 @@ if grep -q ' E: ' namcap.log; then
 fi
 
 pacman -U --noconfirm "$package" > /dev/null
-lib=/usr/lib/astralparty-toys
+lib=/opt/astralparty-toys
 test -f "$lib/app/AstralParty.Toys.exe"
 test -f "$lib/webview2/msedgewebview2.exe"
 test -f /usr/share/icons/hicolor/128x128/apps/astralparty-toys.png

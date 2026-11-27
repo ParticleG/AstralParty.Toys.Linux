@@ -9,6 +9,9 @@ use std::{
 };
 
 const EXECUTABLE: &str = "AstralParty.Toys.exe";
+/// Where the package installs the toolbox (`app/`) and WebView2 (`webview2/`). Not under /usr:
+/// Proton runs inside the Steam Linux Runtime container, which replaces /usr.
+const PACKAGE_DIR: &str = "/opt/astralparty-toys";
 /// The game's data (replays, logs) that the toolbox reads, inside a Proton prefix.
 const GAME_DATA: &str = "drive_c/users/steamuser/AppData/LocalLow/feimo";
 /// Opens the toolbox's steam:// links with the native Steam client instead of Proton's stub.
@@ -38,11 +41,9 @@ pub struct Toolbox {
 }
 
 impl Toolbox {
-    /// The packaged layout beside this executable: `app/` and `webview2/`.
+    /// The packaged toolbox and WebView2 runtime.
     pub fn installed(data: PathBuf) -> Result<Self, String> {
-        let exe = env::current_exe().and_then(fs::canonicalize)
-            .map_err(|error| format!("无法确定程序位置：{error}"))?;
-        Self::at(exe.parent().ok_or("无法确定程序位置。")?, data)
+        Self::at(Path::new(PACKAGE_DIR), data)
     }
 
     fn at(base: &Path, data: PathBuf) -> Result<Self, String> {

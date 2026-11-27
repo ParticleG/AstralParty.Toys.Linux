@@ -1,8 +1,8 @@
 # 更新日志
 
-## 启动器 0.2.1（AUR `astralparty-toys-bin` 2.5.2-2）
+## 启动器 0.2.2（AUR `astralparty-toys-bin` 2.5.2-2）
 
-- 修复：工具箱无法启动。软件包内容从 `/usr/lib/astralparty-toys` 移到 `/opt/astralparty-toys`，因为 Proton 所在的 Steam Linux Runtime 容器看不到宿主的 `/usr`。
+- 修复：工具箱无法启动。官方工具箱和 WebView2 从 `/usr/lib/astralparty-toys` 移到 `/opt/astralparty-toys`，因为 Proton 所在的 Steam Linux Runtime 容器看不到宿主的 `/usr`；启动器本身装在 `/usr/bin/astralparty-toys`。
 
 ## 启动器 0.2.0（AUR `astralparty-toys-bin` 2.5.2-1）
 

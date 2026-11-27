@@ -10,4 +10,4 @@ astralparty-toys-bin installs three components:
   is built: Microsoft software licence terms, see
   https://learn.microsoft.com/microsoft-edge/webview2/concepts/distribution
   Its third-party notices are listed by show_third_party_software_licenses.bat in
-  /usr/lib/astralparty-toys/webview2.
+  /opt/astralparty-toys/webview2.

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=AstralParty.Toys
+Name[zh_CN]=吉星派对工具箱
+Comment=Astral Party toolbox: replays, mods, skins and CesiumLoader (runs through Steam Proton)
+Comment[zh_CN]=吉星派对工具箱：回放、模组、皮肤与 CesiumLoader（通过 Steam Proton 运行）
+Exec=astralparty-toys
+TryExec=astralparty-toys
+Icon=astralparty-toys
+Terminal=false
+Categories=Game;
+StartupWMClass=steam_app_0

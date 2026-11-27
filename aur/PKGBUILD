@@ -23,7 +23,7 @@ source=("AstralParty.Toys-$pkgver.zip::https://github.com/higashitaniyume/Astral
         "webview2-$_webview2.cab::https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/$_webview2_id/Microsoft.WebView2.FixedVersionRuntime.$_webview2.x64.cab")
 noextract=("AstralParty.Toys-$pkgver.zip" "webview2-$_webview2.cab")
 sha256sums=('e0428dcffb55ee0143d473be691026efa6168271828bf5e1d2da3877ea4c2910'
-            'SKIP'
+            '8ccc692a5ac46ff8684fcb026845ba7658c53eab70fa37e862f7b5a4d62903e8'
             '1bad3df802a4c21f6b271cf3cd640912056291e3915b86fa7577a18899f761b9')
 
 _helper_dir=AstralParty.Toys.Linux-helper-v$_helper

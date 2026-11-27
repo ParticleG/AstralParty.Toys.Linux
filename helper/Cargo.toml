@@ -1,0 +1,7 @@
+[package]
+name = "astralparty-toys"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.90"
+license = "AGPL-3.0-only"
+publish = false

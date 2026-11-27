@@ -1,0 +1,13 @@
+astralparty-toys-bin installs three components:
+
+- astralparty-toys, the launcher in this repository: GNU AGPL-3.0-only, see LICENSE.
+- AstralParty.Toys, the official Windows release by Yume Higashitani, unmodified:
+  GNU AGPL-3.0, https://github.com/higashitaniyume/AstralParty.Toys
+  It embeds CesiumLoader (GNU AGPL-3.0; its SDK is MIT), https://github.com/higashitaniyume/CesiumLoader
+  Astral Party protocol assemblies, data tables and game artwork embedded in it belong to their
+  respective owners and are not covered by these licences.
+- Microsoft Edge WebView2 Runtime (Fixed Version), downloaded from Microsoft when the package
+  is built: Microsoft software licence terms, see
+  https://learn.microsoft.com/microsoft-edge/webview2/concepts/distribution
+  Its third-party notices are listed by show_third_party_software_licenses.bat in
+  /usr/lib/astralparty-toys/webview2.

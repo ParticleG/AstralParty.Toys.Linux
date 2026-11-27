@@ -1,33 +1,30 @@
 name: AUR
 
-# Build the AUR package in Arch Linux and test the installed result (linux/aur/build.sh), then
-# push PKGBUILD and .SRCINFO to the AUR. Pushing a linux-v<version> tag publishes; a manual run
-# publishes only when given a tag, and otherwise just builds the current commit.
+# Builds aur/PKGBUILD in Arch Linux and tests the installed package (aur/build.sh). On main, the
+# PKGBUILD as committed is then pushed to the AUR together with a generated .SRCINFO.
 # Publishing needs the AUR_SSH_PRIVATE_KEY secret, whose public key is on the maintainer's AUR account.
 on:
   push:
-    tags: ["linux-v*"]
+    branches: [main]
+    paths: [aur/**, helper/**, LICENSE, .gitattributes, .github/workflows/aur.yml]
+  pull_request:
+    paths: [aur/**, helper/**, LICENSE, .gitattributes, .github/workflows/aur.yml]
   workflow_dispatch:
+  workflow_call:
     inputs:
-      tag:
-        description: Tag to publish, such as linux-v0.1.0 (leave empty to only build this commit)
+      ref:
+        description: Branch to build; never published
         type: string
-        default: ""
-      pkgrel:
-        description: AUR pkgrel (raise it to republish the same version)
-        type: string
-        default: "1"
+        required: true
 
 permissions:
   contents: read
 
 concurrency:
-  group: aur
+  group: aur-${{ inputs.ref || github.ref }}
 
 env:
-  TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
-  PKGREL: ${{ inputs.pkgrel || '1' }}
-  PKGNAME: astralparty-toys-linux
+  PUBLISH: ${{ github.event_name != 'pull_request' && !inputs.ref && github.ref == 'refs/heads/main' }}
 
 jobs:
   aur:
@@ -41,10 +38,11 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.TAG }}
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
 
       - name: Build and test the package
-        run: bash linux/aur/build.sh "$TAG" "$PKGREL"
+        run: bash aur/build.sh "$([ "$PUBLISH" = true ] && echo verify || echo auto)"
 
       - name: Trust the AUR host keys
         run: |
@@ -58,7 +56,7 @@ jobs:
           echo "AUR_SSH=ssh -o UserKnownHostsFile=$HOME/.ssh/aur_known_hosts -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes" >> "$GITHUB_ENV"
 
       - name: Check the AUR host key
-        if: env.TAG == ''
+        if: env.PUBLISH != 'true'
         run: |
           # Without a key, the AUR must refuse authentication only after the host key was accepted.
           output=$($AUR_SSH -o BatchMode=yes aur@aur.archlinux.org 2>&1 || true)
@@ -66,7 +64,7 @@ jobs:
           grep -q 'Permission denied (publickey)' <<< "$output"
 
       - name: Publish to the AUR
-        if: env.TAG != ''
+        if: env.PUBLISH == 'true'
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
@@ -79,7 +77,8 @@ jobs:
           printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur
           chmod 600 ~/.ssh/aur
           export GIT_SSH_COMMAND="$AUR_SSH -i $HOME/.ssh/aur"
-          git clone "ssh://aur@aur.archlinux.org/$PKGNAME.git" "$RUNNER_TEMP/aur"
+          pkgname=$(sed -n 's/^pkgname=//p' aur/PKGBUILD)
+          git clone "ssh://aur@aur.archlinux.org/$pkgname.git" "$RUNNER_TEMP/aur"
           cp /home/builder/aur/PKGBUILD /home/builder/aur/.SRCINFO "$RUNNER_TEMP/aur/"
           cd "$RUNNER_TEMP/aur"
           git add PKGBUILD .SRCINFO
@@ -87,6 +86,6 @@ jobs:
             echo "The AUR already has this PKGBUILD."
             exit 0
           fi
-          version=$(sed -n 's/^pkgver=//p' PKGBUILD)
-          git -c user.name="$name" -c user.email="$email" commit --quiet -m "Update to $version-$PKGREL"
+          version=$(sed -n 's/^pkgver=//p' PKGBUILD)-$(sed -n 's/^pkgrel=//p' PKGBUILD)
+          git -c user.name="$name" -c user.email="$email" commit --quiet -m "Update to $version"
           git push origin HEAD:master

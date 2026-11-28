@@ -7,8 +7,8 @@
 # /usr: Proton runs inside the Steam Linux Runtime container, which replaces /usr.
 
 pkgname=astralparty-toys-bin
-pkgver=2.5.2
-pkgrel=2
+pkgver=2.5.4
+pkgrel=1
 _helper=0.2.2
 _webview2=157.0.4341.60
 _webview2_id=9d6605ff-c172-41a1-8116-e1bb02b93a01
@@ -25,7 +25,7 @@ source=("AstralParty.Toys-$pkgver.zip::https://github.com/higashitaniyume/Astral
         "astralparty-toys-helper-$_helper.tar.gz::$url/archive/refs/tags/helper-v$_helper.tar.gz"
         "webview2-$_webview2.cab::https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/$_webview2_id/Microsoft.WebView2.FixedVersionRuntime.$_webview2.x64.cab")
 noextract=("AstralParty.Toys-$pkgver.zip" "webview2-$_webview2.cab")
-sha256sums=('e0428dcffb55ee0143d473be691026efa6168271828bf5e1d2da3877ea4c2910'
+sha256sums=('59bc90ef7ecce06a05e89732867ef2aaa1b7d9115e0f159b8a7b359a4a530057'
             'f6652ef6329ab3f9e5f6f48dae6f524ca0817335022578f88baffcf820b51696'
             '1bad3df802a4c21f6b271cf3cd640912056291e3915b86fa7577a18899f761b9')
 
